@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" xmlns:acl="com.bestbytes.zugspitze.acl.*"
+	initialize="this.init()"
+	aclUser="{this.user}"
+	aclDelegate="{new MyAclDelegate}"
+>
+	<mx:Script>
+		<![CDATA[
+			import com.bestbytes.zugspitze.acl.User;
+			import com.bestbytes.zugspitze.acl.Policy;
+		
+			[Bindable] 
+			public var policyGuest:Policy;
+			
+			[Bindable] 
+			public var policyTeam:Policy;
+			
+			[Bindable] 
+			public var policyGod:Policy;
+			
+			[Bindable]
+			public var user:User;
+			
+			private function init():void
+			{
+				 this.policyGuest = Policy.createPolicy().
+				 	addRead(['God', 'Team', 'Guests']).
+				 	addUpdate(['God', 'Team', 'Guests'])
+				 ;
+				 this.policyTeam = Policy.createPolicy().
+				 	addRead(['God', 'Team']).
+				 	addUpdate(['God', 'Team']).
+				 	addExecute(['God', 'Team'])
+				 ;
+				 this.policyGod = Policy.createPolicy().
+				 	addRead(['God']).
+				 	addUpdate(['God']).
+				 	addExecute(['God'])
+				 ;
+				 this.user = new User(['Guests']);
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox>
+		<mx:HBox>
+			<mx:Button
+				label="['Guests']"
+				click="this.user = new User(['Guests'])"
+			/>
+			<mx:Button
+				label="['Team', 'Guests']"
+				click="this.user = new User(['Team', 'Guests'])"
+			/>
+			<mx:Button
+				label="['God']"
+				click="this.user = new User(['God'])"
+			/>
+		</mx:HBox>
+		<mx:Form
+			aclPolicy="{this.policyGuest}" 
+		>
+		
+			<mx:FormItem 
+				label="some company data"
+				aclPolicy="{this.policyTeam}"
+			>
+				<mx:TextInput text="only to be edited by the team"/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="Guestbook"
+			>
+				<mx:VBox>
+					<mx:TextArea />
+					<mx:Button label="Post guest comment"/>
+					<mx:Button
+						label="löschen - god only"
+						aclPolicy="{this.policyGod}" 
+					/>
+				</mx:VBox>
+			</mx:FormItem>
+		</mx:Form>
+	</mx:VBox>
+</mx:Application>
